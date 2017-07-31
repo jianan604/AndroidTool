@@ -1,0 +1,12 @@
+*.pyc
+.DS_Store
+Android_Monitor/*.pyc
+Android_Monitor/.DS_Store
+DataShow/*.pyc
+DataShow/.DS_Store
+PortTest/*.pyc
+PortTest/.DS_Store
+PortTest/migrations/*.pyc
+PortTest/migrations/.DS_Store
+logs/*.*
+
