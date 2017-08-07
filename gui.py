@@ -289,7 +289,7 @@ class AndroidTools:
         generateReport(self.tasks,self.resultPath)
         self.get_monkey['state'] = 'active'
         self.stop_monkey['state'] = 'disable'
-        self.start_monkey['state'] = 'activate'
+        self.start_monkey['state'] = 'active'
 
 
     def get_report(self):
