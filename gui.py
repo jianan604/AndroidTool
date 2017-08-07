@@ -11,6 +11,7 @@ import multiprocessing
 import os
 import utils
 import platform
+from generateMonkeyReport import generateReport
 
 __author__ = "Sven_Weng"
 
@@ -146,15 +147,13 @@ class AndroidTools:
                                                                        self.cm.get_text(anyevents)))
         cat_monkey_pid = Button(master, text='显示Monkey进程',
                                 command=lambda: self.cm.set_text(monkey_pid, self.ad.get_monkey_id()))
-        start_monkey = Button(master, text='开始Monkey',
+        self.start_monkey = Button(master, text='开始Monkey',
                               command=self.run_monkey)
-        stop_monkey = Button(master, text='结束Monkey',
+        self.stop_monkey = Button(master, text='结束Monkey',state=DISABLED,
                              command=self.stop_monkey)
 
-        get_monkey = Button(master, text='获取Monkey',
-                            command=lambda: self.cm.set_text(status,
-                                                             self.mk.get_monkey(self.cm.get_text(log_path),
-                                                                                *self.cm.collect(*ENTRYLIST))))
+        self.get_monkey = Button(master, text='获取Monkey',state=DISABLED,
+                            command=self.get_report)
         get_memm_info = Button(master, text='开始生成内存信息',
                                command=lambda: self.get_meminfo(self.cm.get_text(mem_monitor)))
         stop_mem_info = Button(master, text="停止生成内存信息", command=self.stop_meminfo)
@@ -181,9 +180,9 @@ class AndroidTools:
         up_keyboard_conf.grid(row=15, column=2)
         up_anyevents_conf.grid(row=16, column=2)
         cat_monkey_pid.grid(row=17, column=2)
-        start_monkey.grid(row=19, column=0)
-        stop_monkey.grid(row=19, column=2)
-        get_monkey.grid(row=19, column=1)
+        self.start_monkey.grid(row=19, column=0)
+        self.stop_monkey.grid(row=19, column=2)
+        self.get_monkey.grid(row=19, column=1)
         get_memm_info.grid(row=1, column=5)
         stop_mem_info.grid(row=1, column=6)
         get_cpu_info.grid(row=3, column=5)
@@ -230,7 +229,7 @@ class AndroidTools:
 
     def run_monkey(self):
         # add by jianan
-        startTime = time.time()
+        self.startTime = time.time()
         # end add
         self.cf.read('monkey.conf')
         package_name = self.cm.cf.get('monkey_conf','package_name').split(" ")[1]
@@ -239,7 +238,8 @@ class AndroidTools:
         self.tasks["tasks"] = []
 
         self.tasks["deviceInfo"] = self.ad.get_devices()
-
+        self.stop_monkey['state'] = 'active'
+        self.start_monkey['state'] = 'disable'
         try:
 
             current_path = os.getcwd()
@@ -280,10 +280,21 @@ class AndroidTools:
 
 
     def stop_monkey(self):
+        self.resultPath = os.path.join(os.getcwd(), "reports", "moneyMonkeyReport" + utils.getTime() + ".html")
+        self.endTime = time.time()
+        self.tasks['duration'] = self.endTime - self.startTime
         self.ad.stop_monkey(status)
         self.collect(self.workPath)
         self.analyse(self.workPath)
+        generateReport(self.tasks,self.resultPath)
+        self.get_monkey['state'] = 'active'
+        self.stop_monkey['state'] = 'disable'
+        self.start_monkey['state'] = 'activate'
 
+
+    def get_report(self):
+        self.mk.get_monkey(self.resultPath)
+        self.get_monkey['state'] = 'disable'
 
     def run_meminfo(self, package_name):
         self.cf.read('monkey.conf')
@@ -346,6 +357,8 @@ class AndroidTools:
         utils.getLog(work_path)
         #         utils.dumpState(workPath)
         utils.getTraceData(work_path)
+
+
 
 if __name__ == '__main__':
     AndroidTools()

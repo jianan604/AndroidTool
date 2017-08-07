@@ -112,19 +112,22 @@ class Monkey:
         self.run(command)
 
 
-    def get_monkey(self, path, *args):
+    def get_monkey(self, report):
         """
         获取Monkey命令
         :param path: 日志地址
         :param args: Monkey命令中的其他参数
         :return:
         """
-        if self.check_total(*args):
-            member = ' '.join(args)
-            command = 'adb shell monkey {} > {}'.format(member, path)
-            return command
-        else:
-            return '事件百分数大于100%,请修正后再获取'
+        command = 'open {}'.format(report)
+        self.run(command)
+
+        #if self.check_total(*args):
+        #    member = ' '.join(args)
+        #    command = 'adb shell monkey {} > {}'.format(member, path)
+        #    return command
+        #else:
+        #    return '事件百分数大于100%,请修正后再获取'
 
     def check_total(self, *args):
         """
